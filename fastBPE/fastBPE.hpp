@@ -1,3 +1,7 @@
+// almost cleaned version for python setup only
+// platform dependent codes are not used in python,
+// just comment them out.
+// uncommenting them should also work fine
 #pragma once
 
 #include <algorithm>
@@ -12,10 +16,221 @@
 #include <stdio.h>
 #include <string>
 #include <cstring>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <thread>
-#include <unistd.h> // ftruncate
+
+// #include <sys/stat.h>
+// #include <thread>
+
+// #ifdef _WIN32
+// #include <sys/types.h>
+// #include <windows.h>
+// #include <io.h> // unistd.h maps (roughly) to io.h
+
+// typedef int mode_t;
+
+// #define ftruncate _chsize
+
+// from mingwin
+// extern "C" {
+
+// #define PROT_NONE       0
+// #define PROT_READ       1
+// #define PROT_WRITE      2
+// #define PROT_EXEC       4
+
+// #define MAP_FILE        0
+// #define MAP_SHARED      1
+// #define MAP_PRIVATE     2
+// #define MAP_TYPE        0xf
+// #define MAP_FIXED       0x10
+// #define MAP_ANONYMOUS   0x20
+// #define MAP_ANON        MAP_ANONYMOUS
+
+// #define MAP_FAILED      ((void *)-1)
+
+// /* Flags for msync. */
+// #define MS_ASYNC        1
+// #define MS_SYNC         2
+// #define MS_INVALIDATE   4
+
+// static int __map_mman_error(const DWORD err, const int deferr)
+// {
+//     if (err == 0)
+//         return 0;
+//     //TODO: implement
+//     return err;
+// }
+
+
+// static DWORD __map_mmap_prot_page(const int prot)
+// {
+//     DWORD protect = 0;
+
+//     if (prot == PROT_NONE)
+//         return protect;
+
+//     if ((prot & PROT_EXEC) != 0)
+//     {
+//         protect = ((prot & PROT_WRITE) != 0) ?
+//                     PAGE_EXECUTE_READWRITE : PAGE_EXECUTE_READ;
+//     }
+//     else
+//     {
+//         protect = ((prot & PROT_WRITE) != 0) ?
+//                     PAGE_READWRITE : PAGE_READONLY;
+//     }
+
+//     return protect;
+// }
+
+// static DWORD __map_mmap_prot_file(const int prot)
+// {
+//     DWORD desiredAccess = 0;
+
+//     if (prot == PROT_NONE)
+//         return desiredAccess;
+
+//     if ((prot & PROT_READ) != 0)
+//         desiredAccess |= FILE_MAP_READ;
+//     if ((prot & PROT_WRITE) != 0)
+//         desiredAccess |= FILE_MAP_WRITE;
+//     if ((prot & PROT_EXEC) != 0)
+//         desiredAccess |= FILE_MAP_EXECUTE;
+
+//     return desiredAccess;
+// }
+
+// void* mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off)
+// {
+//     HANDLE fm, h;
+
+//     void * map = MAP_FAILED;
+
+
+// #pragma warning(push)
+// #pragma warning(disable: 4293)
+
+
+//     const DWORD dwFileOffsetLow = (sizeof(off_t) <= sizeof(DWORD)) ?
+//                     (DWORD)off : (DWORD)(off & 0xFFFFFFFFL);
+//     const DWORD dwFileOffsetHigh = (sizeof(off_t) <= sizeof(DWORD)) ?
+//                     (DWORD)0 : (DWORD)((off >> 32) & 0xFFFFFFFFL);
+//     const DWORD protect = __map_mmap_prot_page(prot);
+//     const DWORD desiredAccess = __map_mmap_prot_file(prot);
+
+//     const off_t maxSize = off + (off_t)len;
+
+//     const DWORD dwMaxSizeLow = (sizeof(off_t) <= sizeof(DWORD)) ?
+//                     (DWORD)maxSize : (DWORD)(maxSize & 0xFFFFFFFFL);
+//     const DWORD dwMaxSizeHigh = (sizeof(off_t) <= sizeof(DWORD)) ?
+//                     (DWORD)0 : (DWORD)((maxSize >> 32) & 0xFFFFFFFFL);
+
+
+// #pragma warning(pop)
+
+
+//     errno = 0;
+
+//     if (len == 0
+//         /* Unsupported flag combinations */
+//         || (flags & MAP_FIXED) != 0
+//         /* Usupported protection combinations */
+//         || prot == PROT_EXEC)
+//     {
+//         errno = EINVAL;
+//         return MAP_FAILED;
+//     }
+
+//     h = ((flags & MAP_ANONYMOUS) == 0) ?
+//                     (HANDLE)_get_osfhandle(fildes) : INVALID_HANDLE_VALUE;
+
+//     if ((flags & MAP_ANONYMOUS) == 0 && h == INVALID_HANDLE_VALUE)
+//     {
+//         errno = EBADF;
+//         return MAP_FAILED;
+//     }
+
+//     fm = CreateFileMapping(h, NULL, protect, dwMaxSizeHigh, dwMaxSizeLow, NULL);
+
+//     if (fm == NULL)
+//     {
+//         errno = __map_mman_error(GetLastError(), EPERM);
+//         return MAP_FAILED;
+//     }
+
+//     map = MapViewOfFile(fm, desiredAccess, dwFileOffsetHigh, dwFileOffsetLow, len);
+
+//     CloseHandle(fm);
+
+//     if (map == NULL)
+//     {
+//         errno = __map_mman_error(GetLastError(), EPERM);
+//         return MAP_FAILED;
+//     }
+
+//     return map;
+// }
+
+// int munmap(void *addr, size_t len)
+// {
+//     if (UnmapViewOfFile(addr))
+//         return 0;
+
+//     errno =  __map_mman_error(GetLastError(), EPERM);
+
+//     return -1;
+// }
+
+// int mprotect(void *addr, size_t len, int prot)
+// {
+//     DWORD newProtect = __map_mmap_prot_page(prot);
+//     DWORD oldProtect = 0;
+
+//     if (VirtualProtect(addr, len, newProtect, &oldProtect))
+//         return 0;
+
+//     errno =  __map_mman_error(GetLastError(), EPERM);
+
+//     return -1;
+// }
+
+// int msync(void *addr, size_t len, int flags)
+// {
+//     if (FlushViewOfFile(addr, len))
+//         return 0;
+
+//     errno =  __map_mman_error(GetLastError(), EPERM);
+
+//     return -1;
+// }
+
+// int mlock(const void *addr, size_t len)
+// {
+//     if (VirtualLock((LPVOID)addr, len))
+//         return 0;
+
+//     errno =  __map_mman_error(GetLastError(), EPERM);
+
+//     return -1;
+// }
+
+// int munlock(const void *addr, size_t len)
+// {
+//     if (VirtualUnlock((LPVOID)addr, len))
+//         return 0;
+
+//     errno =  __map_mman_error(GetLastError(), EPERM);
+
+//     return -1;
+// }
+
+
+// };
+// end from mingwin
+// #elif defined __linux__
+// #include <unistd.h> // ftruncate, not existed in windows
+// #include <sys/mman.h> // not existed in windows
+// #endif
+
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -25,134 +240,134 @@ namespace fastBPE {
 
 using namespace std;
 
-const size_t kMaxPairs = 1000 * 1000 * 1000;
-const size_t kThreads = max(1, min(10, int(thread::hardware_concurrency())));
+// const size_t kMaxPairs = 1000 * 1000 * 1000;
+// const size_t kThreads = max(1, min(10, int(thread::hardware_concurrency())));
 const char *kEndWord = "</w>";
 const size_t kEndWordLength = 4;
 const char *kTokenDelim = "@@";
 const size_t kTokenDelimLength = 2;
 
-int safeOpen(const char *file_path, int flags, mode_t mode = 0) {
-  int fd = open(file_path, flags, mode);
-  if (fd < 0) {
-    fprintf(stderr, "Cannot open text file %s\n", file_path);
-    exit(EXIT_FAILURE);
-  }
-  return fd;
-}
+// int safeOpen(const char *file_path, int flags, mode_t mode = 0) {
+//   int fd = open(file_path, flags, mode);
+//   if (fd < 0) {
+//     fprintf(stderr, "Cannot open text file %s\n", file_path);
+//     exit(EXIT_FAILURE);
+//   }
+//   return fd;
+// }
 
-void readText(const char *fp, unordered_map<string, uint32_t> &word_count) {
-  string cur_word;
-  uint64_t total = 0;
-  auto deal_with_char = [&](char cur_char){
-    if (cur_char == ' ' || cur_char == '\n') {
-      if (cur_word.size() == 0)
-        return;
-      // end of word
-      auto it = word_count.find(cur_word);
-      int count = it != word_count.end() ? it->second : 0;
-      word_count[cur_word] = count + 1;
-      total++;
-      cur_word.clear();
-    } else {
-      cur_word.push_back(cur_char);
-    }
-  };
+// void readText(const char *fp, unordered_map<string, uint32_t> &word_count) {
+//   string cur_word;
+//   uint64_t total = 0;
+//   auto deal_with_char = [&](char cur_char){
+//     if (cur_char == ' ' || cur_char == '\n') {
+//       if (cur_word.size() == 0)
+//         return;
+//       // end of word
+//       auto it = word_count.find(cur_word);
+//       int count = it != word_count.end() ? it->second : 0;
+//       word_count[cur_word] = count + 1;
+//       total++;
+//       cur_word.clear();
+//     } else {
+//       cur_word.push_back(cur_char);
+//     }
+//   };
 
-  if (string(fp).compare("-") == 0) {
-    for (std::string line; std::getline(std::cin, line);) {
-      for(char c: line){
-        deal_with_char(c);
-      }
-      deal_with_char('\n');
-    }
-  }
-  else {
-    int fd = safeOpen(fp, O_RDONLY);
+//   if (string(fp).compare("-") == 0) {
+//     for (std::string line; std::getline(std::cin, line);) {
+//       for(char c: line){
+//         deal_with_char(c);
+//       }
+//       deal_with_char('\n');
+//     }
+//   }
+//   else {
+//     int fd = safeOpen(fp, O_RDONLY);
 
-    struct stat s;
-    fstat(fd, &s);
-    fprintf(stderr, "Loading vocabulary from %s ...\n", fp);
+//     struct stat s;
+//     fstat(fd, &s);
+//     fprintf(stderr, "Loading vocabulary from %s ...\n", fp);
 
-    size_t size = s.st_size;
-    char *f = (char *)mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
+//     size_t size = s.st_size;
+//     char *f = (char *)mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
 
-    for (size_t i = 0; i < size; i++) {
-      deal_with_char(f[i]);
-    }
-  }
-  fprintf(stderr, "Read %lu words (%lu unique) from text file.\n", total,
-          word_count.size());
-}
+//     for (size_t i = 0; i < size; i++) {
+//       deal_with_char(f[i]);
+//     }
+//   }
+//   fprintf(stderr, "Read %lu words (%lu unique) from text file.\n", total,
+//           word_count.size());
+// }
 
-std::pair<size_t, uint64_t> output_or_count(
-  unordered_map<string, string> &bpe, size_t size, char *f, char *fo
-) {
-  string cur_word;
-  size_t charOut = 0;
-  uint64_t total = 0;
-  for (size_t i = 0; i < size; i++) {
-    auto &cur_char = f[i];
-    if (cur_char == ' ' || cur_char == '\n') {
-      if (cur_word.size() == 0) {
-        if (fo != nullptr) fo[charOut] = cur_char;
-        charOut++;
-        continue;
-      }
-      // end of word : write bpe to output
-      auto it = bpe.find(cur_word);
-      assert(it != bpe.end());
-      for (auto x : it->second) {
-        if (fo != nullptr) fo[charOut] = x;
-        charOut++;
-      }
-      if (fo != nullptr) fo[charOut] = cur_char;
-      charOut++;
+// std::pair<size_t, uint64_t> output_or_count(
+//   unordered_map<string, string> &bpe, size_t size, char *f, char *fo
+// ) {
+//   string cur_word;
+//   size_t charOut = 0;
+//   uint64_t total = 0;
+//   for (size_t i = 0; i < size; i++) {
+//     auto &cur_char = f[i];
+//     if (cur_char == ' ' || cur_char == '\n') {
+//       if (cur_word.size() == 0) {
+//         if (fo != nullptr) fo[charOut] = cur_char;
+//         charOut++;
+//         continue;
+//       }
+//       // end of word : write bpe to output
+//       auto it = bpe.find(cur_word);
+//       assert(it != bpe.end());
+//       for (auto x : it->second) {
+//         if (fo != nullptr) fo[charOut] = x;
+//         charOut++;
+//       }
+//       if (fo != nullptr) fo[charOut] = cur_char;
+//       charOut++;
 
-      total++;
-      cur_word.clear();
-    } else {
-      cur_word.push_back(cur_char);
-    }
-  }
-  return std::make_pair(charOut, total);
-}
+//       total++;
+//       cur_word.clear();
+//     } else {
+//       cur_word.push_back(cur_char);
+//     }
+//   }
+//   return std::make_pair(charOut, total);
+// }
 
-void outputText(const char *fpo, const char *fp,
-                unordered_map<string, string> &bpe) {
+// void outputText(const char *fpo, const char *fp,
+//                 unordered_map<string, string> &bpe) {
 
-  int fd = safeOpen(fp, O_RDONLY);
-  auto fdOut = safeOpen(fpo, O_RDWR | O_CREAT | O_TRUNC, 0666);
+//   int fd = safeOpen(fp, O_RDONLY);
+//   auto fdOut = safeOpen(fpo, O_RDWR | O_CREAT | O_TRUNC, 0666);
 
-  struct stat s;
-  fstat(fd, &s);
+//   struct stat s;
+//   fstat(fd, &s);
 
-  fprintf(stderr, "Applying BPE to %s ...\n", fp);
-  auto size = s.st_size;
-  char *f = (char *)mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
+//   fprintf(stderr, "Applying BPE to %s ...\n", fp);
+//   auto size = s.st_size;
+//   char *f = (char *)mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
 
-  auto p = output_or_count(bpe, size, f, nullptr);
-  size_t out_size = p.first;
+//   auto p = output_or_count(bpe, size, f, nullptr);
+//   size_t out_size = p.first;
 
-  if (ftruncate(fdOut, out_size) < 0) {
-    fprintf(stderr, "Couldn't truncate output file %s to size %lu\n", fpo,
-            out_size);
-    exit(EXIT_FAILURE);
-  }
+//   if (ftruncate(fdOut, out_size) < 0) {
+//     fprintf(stderr, "Couldn't truncate output file %s to size %lu\n", fpo,
+//             out_size);
+//     exit(EXIT_FAILURE);
+//   }
 
 
-  char *fo = (char *)mmap(NULL, out_size, PROT_WRITE, MAP_SHARED, fdOut, 0);
-  if (fo == MAP_FAILED) {
-    fprintf(stderr, "Output memory map failed : %d.\n", errno);
-    exit(EXIT_FAILURE);
-  }
-  p = output_or_count(bpe, size, f, fo);
-  fprintf(stderr, "Modified %lu words from text file.\n", p.second);
-  munmap(fo, out_size);
-  munmap(f, size);
-  close(fdOut);
-  close(fd);
-}
+//   char *fo = (char *)mmap(NULL, out_size, PROT_WRITE, MAP_SHARED, fdOut, 0);
+//   if (fo == MAP_FAILED) {
+//     fprintf(stderr, "Output memory map failed : %d.\n", errno);
+//     exit(EXIT_FAILURE);
+//   }
+//   p = output_or_count(bpe, size, f, fo);
+//   fprintf(stderr, "Modified %lu words from text file.\n", p.second);
+//   munmap(fo, out_size);
+//   munmap(f, size);
+//   close(fdOut);
+//   close(fd);
+// }
 
 struct pair_hash {
   template <class T1, class T2> size_t operator()(const pair<T1, T2> &p) const {
@@ -164,248 +379,248 @@ struct pair_hash {
   }
 };
 
-void tokenize(const unordered_map<string, uint32_t> &word_count,
-              unordered_map<string, uint32_t> &token_to_int,
-              vector<string> &int_to_token, vector<list<uint32_t>> &words,
-              vector<int32_t> &counts) {
+// void tokenize(const unordered_map<string, uint32_t> &word_count,
+//               unordered_map<string, uint32_t> &token_to_int,
+//               vector<string> &int_to_token, vector<list<uint32_t>> &words,
+//               vector<int32_t> &counts) {
 
-  for (auto &x : word_count) {
-    auto &word = x.first;
+//   for (auto &x : word_count) {
+//     auto &word = x.first;
 
-    words.push_back(list<uint32_t>());
-    auto &current_word = words.back();
-    counts.push_back(x.second);
+//     words.push_back(list<uint32_t>());
+//     auto &current_word = words.back();
+//     counts.push_back(x.second);
 
-    int pos = 0, realLength = 0;
-    int lastStart = 0;
-    while (word[pos]) {
-      bool newChar = (word[pos] & 0xc0) != 0x80; // not a continuation byte
-      realLength += newChar;
-      // new token
-      if (newChar && pos > 0) {
-        auto new_token = word.substr(lastStart, pos - lastStart);
-        if (token_to_int.count(new_token) == 0) {
-          int_to_token.push_back(new_token);
-          token_to_int[new_token] = int_to_token.size() - 1;
-        }
-        current_word.push_back(token_to_int[new_token]);
-        lastStart = pos;
-      }
-      pos++;
-    }
-    auto new_token = word.substr(lastStart, string::npos) + kEndWord;
-    if (token_to_int.count(new_token) == 0) {
-      int_to_token.push_back(new_token);
-      token_to_int[new_token] = int_to_token.size() - 1;
-    }
-    current_word.push_back(token_to_int[new_token]);
-  }
-}
+//     int pos = 0, realLength = 0;
+//     int lastStart = 0;
+//     while (word[pos]) {
+//       bool newChar = (word[pos] & 0xc0) != 0x80; // not a continuation byte
+//       realLength += newChar;
+//       // new token
+//       if (newChar && pos > 0) {
+//         auto new_token = word.substr(lastStart, pos - lastStart);
+//         if (token_to_int.count(new_token) == 0) {
+//           int_to_token.push_back(new_token);
+//           token_to_int[new_token] = int_to_token.size() - 1;
+//         }
+//         current_word.push_back(token_to_int[new_token]);
+//         lastStart = pos;
+//       }
+//       pos++;
+//     }
+//     auto new_token = word.substr(lastStart, string::npos) + kEndWord;
+//     if (token_to_int.count(new_token) == 0) {
+//       int_to_token.push_back(new_token);
+//       token_to_int[new_token] = int_to_token.size() - 1;
+//     }
+//     current_word.push_back(token_to_int[new_token]);
+//   }
+// }
 
-void tokenize_str(const unordered_map<string, uint32_t> &word_count,
-                  unordered_map<string, vector<string>> &words) {
+// void tokenize_str(const unordered_map<string, uint32_t> &word_count,
+//                   unordered_map<string, vector<string>> &words) {
 
-  for (auto &x : word_count) {
-    auto &word = x.first;
-    words[word] = vector<string>();
+//   for (auto &x : word_count) {
+//     auto &word = x.first;
+//     words[word] = vector<string>();
 
-    int pos = 0, realLength = 0;
-    int lastStart = 0;
-    while (word[pos]) {
-      bool newChar = (word[pos] & 0xc0) != 0x80; // not a continuation byte
-      realLength += newChar;
-      // new token
-      if (newChar && pos > 0) {
-        auto new_token = word.substr(lastStart, pos - lastStart);
-        words[word].push_back(new_token);
-        lastStart = pos;
-      }
-      pos++;
-    }
-    auto new_token = word.substr(lastStart, string::npos) + kEndWord;
-    words[word].push_back(new_token);
-  }
-}
+//     int pos = 0, realLength = 0;
+//     int lastStart = 0;
+//     while (word[pos]) {
+//       bool newChar = (word[pos] & 0xc0) != 0x80; // not a continuation byte
+//       realLength += newChar;
+//       // new token
+//       if (newChar && pos > 0) {
+//         auto new_token = word.substr(lastStart, pos - lastStart);
+//         words[word].push_back(new_token);
+//         lastStart = pos;
+//       }
+//       pos++;
+//     }
+//     auto new_token = word.substr(lastStart, string::npos) + kEndWord;
+//     words[word].push_back(new_token);
+//   }
+// }
 
 using tp = pair<uint32_t, uint32_t>;
 using tps = pair<string, string>;
 using pc = unordered_map<tp, pair<int32_t, tp> *, pair_hash>;
 
-void count_in_word(
-    list<uint32_t> &word, uint32_t wi, uint32_t count, pc &pair_counts,
-    vector<pair<int32_t, tp>> &contiguous_counts,
-    unordered_map<tp, unordered_set<uint32_t>, pair_hash> &where) {
-  bool second = false;
-  tp cur_pair;
-  for (uint32_t token : word) {
-    if (second) {
-      cur_pair.first = cur_pair.second;
-    }
-    cur_pair.second = token;
-    if (second) {
-      auto it = pair_counts.find(cur_pair);
-      if (it == pair_counts.end()) {
-        contiguous_counts.emplace_back(0, cur_pair);
-        auto *added = &contiguous_counts.back();
-        pair_counts.emplace(piecewise_construct, forward_as_tuple(cur_pair),
-                            forward_as_tuple(added));
-        where[cur_pair].emplace();
-      }
-      if (count > 0) {
-        where[cur_pair].insert(wi);
-      } else {
-        where[cur_pair].erase(wi);
-      }
-      pair_counts[cur_pair]->first += count;
-    } else {
-      second = true;
-    }
-  }
-}
+// void count_in_word(
+//     list<uint32_t> &word, uint32_t wi, uint32_t count, pc &pair_counts,
+//     vector<pair<int32_t, tp>> &contiguous_counts,
+//     unordered_map<tp, unordered_set<uint32_t>, pair_hash> &where) {
+//   bool second = false;
+//   tp cur_pair;
+//   for (uint32_t token : word) {
+//     if (second) {
+//       cur_pair.first = cur_pair.second;
+//     }
+//     cur_pair.second = token;
+//     if (second) {
+//       auto it = pair_counts.find(cur_pair);
+//       if (it == pair_counts.end()) {
+//         contiguous_counts.emplace_back(0, cur_pair);
+//         auto *added = &contiguous_counts.back();
+//         pair_counts.emplace(piecewise_construct, forward_as_tuple(cur_pair),
+//                             forward_as_tuple(added));
+//         where[cur_pair].emplace();
+//       }
+//       if (count > 0) {
+//         where[cur_pair].insert(wi);
+//       } else {
+//         where[cur_pair].erase(wi);
+//       }
+//       pair_counts[cur_pair]->first += count;
+//     } else {
+//       second = true;
+//     }
+//   }
+// }
 
-void find_maxp(vector<pair<int32_t, tp>> &contiguous_counts, tp &maxp,
-               int32_t &max_c) {
-  max_c = 0;
-  for (auto &x : contiguous_counts) {
-    if (x.first > max_c) {
-      max_c = x.first;
-      maxp = x.second;
-    } else if (x.first == max_c and x.second < maxp) {
-      maxp = x.second;
-    }
-  }
-}
+// void find_maxp(vector<pair<int32_t, tp>> &contiguous_counts, tp &maxp,
+//                int32_t &max_c) {
+//   max_c = 0;
+//   for (auto &x : contiguous_counts) {
+//     if (x.first > max_c) {
+//       max_c = x.first;
+//       maxp = x.second;
+//     } else if (x.first == max_c && x.second < maxp) {
+//       maxp = x.second;
+//     }
+//   }
+// }
 
-void getvocab(const char *inputFile1, const char *inputFile2) {
-  // get vocab
-  unordered_map<string, uint32_t> word_count;
-  readText(inputFile1, word_count);
-  if (strcmp(inputFile2, "") != 0) {
-    readText(inputFile2, word_count);
-  }
+// void getvocab(const char *inputFile1, const char *inputFile2) {
+//   // get vocab
+//   unordered_map<string, uint32_t> word_count;
+//   readText(inputFile1, word_count);
+//   if (strcmp(inputFile2, "") != 0) {
+//     readText(inputFile2, word_count);
+//   }
 
-  // sort vocab
-  auto compFunctor = [](pair<string, int> elem1, pair<string, int> elem2) {
-    return elem1.second > elem2.second ||
-           (elem1.second == elem2.second && elem1.first < elem2.first);
-  };
-  set<pair<string, int>, decltype(compFunctor)> sorted_vocab(
-      word_count.begin(), word_count.end(), compFunctor);
-  assert(word_count.size() == sorted_vocab.size());
+//   // sort vocab
+//   auto compFunctor = [](pair<string, int> elem1, pair<string, int> elem2) {
+//     return elem1.second > elem2.second ||
+//            (elem1.second == elem2.second && elem1.first < elem2.first);
+//   };
+//   set<pair<string, int>, decltype(compFunctor)> sorted_vocab(
+//       word_count.begin(), word_count.end(), compFunctor);
+//   assert(word_count.size() == sorted_vocab.size());
 
-  // print sorted vocab
-  for (auto element : sorted_vocab)
-    cout << element.first << " " << element.second << endl;
-}
+//   // print sorted vocab
+//   for (auto element : sorted_vocab)
+//     cout << element.first << " " << element.second << endl;
+// }
 
-void learnbpe(const uint32_t kNPairs, const char *inputFile1,
-              const char *inputFile2) {
-  // get vocab
-  unordered_map<string, uint32_t> word_count;
-  readText(inputFile1, word_count);
-  if (strcmp(inputFile2, "") != 0) {
-    readText(inputFile2, word_count);
-  }
+// void learnbpe(const uint32_t kNPairs, const char *inputFile1,
+//               const char *inputFile2) {
+//   // get vocab
+//   unordered_map<string, uint32_t> word_count;
+//   readText(inputFile1, word_count);
+//   if (strcmp(inputFile2, "") != 0) {
+//     readText(inputFile2, word_count);
+//   }
 
-  // a token is an int, it represents a string
-  unordered_map<string, uint32_t> token_to_int;
-  vector<string> int_to_token;
+//   // a token is an int, it represents a string
+//   unordered_map<string, uint32_t> token_to_int;
+//   vector<string> int_to_token;
 
-  vector<list<uint32_t>> words;
-  vector<int32_t> counts;
+//   vector<list<uint32_t>> words;
+//   vector<int32_t> counts;
 
-  tokenize(word_count, token_to_int, int_to_token, words, counts);
+//   tokenize(word_count, token_to_int, int_to_token, words, counts);
 
-  vector<pair<int32_t, tp>> contiguous_counts;
-  contiguous_counts.reserve(kMaxPairs);
+//   vector<pair<int32_t, tp>> contiguous_counts;
+//   contiguous_counts.reserve(kMaxPairs);
 
-  pc pair_counts;
-  unordered_map<tp, unordered_set<uint32_t>, pair_hash> where_to_update;
+//   pc pair_counts;
+//   unordered_map<tp, unordered_set<uint32_t>, pair_hash> where_to_update;
 
-  tp cur_pair;
-  int32_t max_c = 0;
-  tp max_p;
-  for (uint32_t wi = 0; wi < words.size(); wi++) {
-    count_in_word(words[wi], wi, counts[wi], pair_counts, contiguous_counts,
-                  where_to_update);
-  }
-  find_maxp(contiguous_counts, max_p, max_c);
-  for (size_t i = 0; i < kNPairs; i++) {
-    // create new token for pair. replace
-    auto new_token = int_to_token[max_p.first] + int_to_token[max_p.second];
-    cout << int_to_token[max_p.first] << " " << int_to_token[max_p.second]
-         << " " << max_c << endl;
+//   tp cur_pair;
+//   int32_t max_c = 0;
+//   tp max_p;
+//   for (uint32_t wi = 0; wi < words.size(); wi++) {
+//     count_in_word(words[wi], wi, counts[wi], pair_counts, contiguous_counts,
+//                   where_to_update);
+//   }
+//   find_maxp(contiguous_counts, max_p, max_c);
+//   for (size_t i = 0; i < kNPairs; i++) {
+//     // create new token for pair. replace
+//     auto new_token = int_to_token[max_p.first] + int_to_token[max_p.second];
+//     cout << int_to_token[max_p.first] << " " << int_to_token[max_p.second]
+//          << " " << max_c << endl;
 
-    uint32_t new_token_id = int_to_token.size();
-    int_to_token.push_back(new_token);
-    token_to_int[new_token] = new_token_id;
-    max_c = 0;
-    auto change_count = [&](tp pair, int32_t v, uint32_t wi) {
-      auto it = pair_counts.find(pair);
-      if (it != pair_counts.end()) {
-        // assert(it->second + v >= 0);
-        it->second->first += v;
-      } else {
-        if (v > 0) {
-          contiguous_counts.emplace_back(v, pair);
-          pair_counts.emplace(piecewise_construct, forward_as_tuple(pair),
-                              forward_as_tuple(&(contiguous_counts.back())));
-          where_to_update[pair] = unordered_set<uint32_t>();
-        }
-      }
-      if (v > 0)
-        where_to_update[pair].insert(wi);
-    };
+//     uint32_t new_token_id = int_to_token.size();
+//     int_to_token.push_back(new_token);
+//     token_to_int[new_token] = new_token_id;
+//     max_c = 0;
+//     auto change_count = [&](tp pair, int32_t v, uint32_t wi) {
+//       auto it = pair_counts.find(pair);
+//       if (it != pair_counts.end()) {
+//         // assert(it->second + v >= 0);
+//         it->second->first += v;
+//       } else {
+//         if (v > 0) {
+//           contiguous_counts.emplace_back(v, pair);
+//           pair_counts.emplace(piecewise_construct, forward_as_tuple(pair),
+//                               forward_as_tuple(&(contiguous_counts.back())));
+//           where_to_update[pair] = unordered_set<uint32_t>();
+//         }
+//       }
+//       if (v > 0)
+//         where_to_update[pair].insert(wi);
+//     };
 
-    for (auto wi : where_to_update[max_p]) {
-      auto &cur_word = words[wi];
-      auto it = cur_word.begin();
-      bool second = false;
-      while (it != cur_word.end()) {
-        if (second) {
-          cur_pair.first = cur_pair.second;
-        }
-        cur_pair.second = *it;
+//     for (auto wi : where_to_update[max_p]) {
+//       auto &cur_word = words[wi];
+//       auto it = cur_word.begin();
+//       bool second = false;
+//       while (it != cur_word.end()) {
+//         if (second) {
+//           cur_pair.first = cur_pair.second;
+//         }
+//         cur_pair.second = *it;
 
-        if (second) {
-          // found the pair
-          if (cur_pair == max_p) {
-            it--; // points to first element of pair
-            // if there is a token before us
-            if (it != cur_word.begin()) {
-              it--;
-              change_count(make_pair(*it, cur_pair.first), -counts[wi], wi);
-              change_count(make_pair(*it, new_token_id), counts[wi], wi);
-              it++;
-            }
+//         if (second) {
+//           // found the pair
+//           if (cur_pair == max_p) {
+//             it--; // points to first element of pair
+//             // if there is a token before us
+//             if (it != cur_word.begin()) {
+//               it--;
+//               change_count(make_pair(*it, cur_pair.first), -counts[wi], wi);
+//               change_count(make_pair(*it, new_token_id), counts[wi], wi);
+//               it++;
+//             }
 
-            it = cur_word.insert(it, new_token_id); // it points to new token
-            it++;                    // it points to first element of pair
-            it = cur_word.erase(it); // it points to second element of pair
-            it = cur_word.erase(it); // it points to next value
+//             it = cur_word.insert(it, new_token_id); // it points to new token
+//             it++;                    // it points to first element of pair
+//             it = cur_word.erase(it); // it points to second element of pair
+//             it = cur_word.erase(it); // it points to next value
 
-            // if there is a token after the one we inserted
-            if (it != cur_word.end()) {
-              change_count(make_pair(cur_pair.second, *it), -counts[wi], wi);
-              change_count(make_pair(new_token_id, *it), counts[wi], wi);
-            }
-            cur_pair.second = new_token_id;
-          } else {
-            it++;
-          }
-        } else {
-          second = true;
-          it++;
-        }
-      }
-    }
+//             // if there is a token after the one we inserted
+//             if (it != cur_word.end()) {
+//               change_count(make_pair(cur_pair.second, *it), -counts[wi], wi);
+//               change_count(make_pair(new_token_id, *it), counts[wi], wi);
+//             }
+//             cur_pair.second = new_token_id;
+//           } else {
+//             it++;
+//           }
+//         } else {
+//           second = true;
+//           it++;
+//         }
+//       }
+//     }
 
-    if (pair_counts.find(max_p) != pair_counts.end()){
-      pair_counts[max_p]->first = 0;
-    }
-    find_maxp(contiguous_counts, max_p, max_c);
-  }
-}
+//     if (pair_counts.find(max_p) != pair_counts.end()){
+//       pair_counts[max_p]->first = 0;
+//     }
+//     find_maxp(contiguous_counts, max_p, max_c);
+//   }
+// }
 
 void split(vector<string> &splits, const string &text, char sep) {
   size_t start = 0, end = 0;
@@ -547,13 +762,13 @@ string process_bpe(vector<string> &subwords,
     bool justMerged = false;
     newSubwords = vector<string>();
     for (size_t i = 0; i < subwords.size(); i++) {
-      if ((i + 1 < subwords.size()) && (not justMerged) &&
+      if ((i + 1 < subwords.size()) && (!justMerged) &&
           subwords[i] == bestPair->first.first &&
           subwords[i + 1] == bestPair->first.second) {
         newSubwords.push_back(subwords[i] + subwords[i + 1]);
         justMerged = true;
       } else {
-        if (not justMerged) {
+        if (! justMerged) {
           newSubwords.push_back(subwords[i]);
         }
         justMerged = false;
@@ -578,57 +793,58 @@ string process_bpe(vector<string> &subwords,
   );
 }
 
-void applybpe(const char *outputFile, const char *inputFile,
-              const char *codesPath, const char *vocabPath) {
-  // read vocabulary (to which we want to limit the output file)
-  unordered_map<string, uint32_t> vocab;
-  if (strcmp(vocabPath, "") != 0) {
-    readVocab(vocabPath, vocab);
-  }
+// void applybpe(const char *outputFile, const char *inputFile,
+//               const char *codesPath, const char *vocabPath) {
+//   // read vocabulary (to which we want to limit the output file)
+//   unordered_map<string, uint32_t> vocab;
+//   if (strcmp(vocabPath, "") != 0) {
+//     readVocab(vocabPath, vocab);
+//   }
 
-  // read codes
-  unordered_map<tps, uint32_t, pair_hash> codes;
-  unordered_map<string, tps> reversed_codes;
-  readCodes(codesPath, codes, reversed_codes);
+//   // read codes
+//   unordered_map<tps, uint32_t, pair_hash> codes;
+//   unordered_map<string, tps> reversed_codes;
+//   readCodes(codesPath, codes, reversed_codes);
 
-  // read input file words
-  unordered_map<string, uint32_t> word_count;
-  readText(inputFile, word_count);
+//   // read input file words
+//   unordered_map<string, uint32_t> word_count;
+//   readText(inputFile, word_count);
 
-  // tokenize
-  unordered_map<string, vector<string>> bpeTok;
-  tokenize_str(word_count, bpeTok);
+//   // tokenize
+//   unordered_map<string, vector<string>> bpeTok;
+//   tokenize_str(word_count, bpeTok);
 
-  vector<pair<string, vector<string>>> bpeTokVec;
-  for (auto x : bpeTok) {
-    bpeTokVec.push_back(x);
-  }
+//   vector<pair<string, vector<string>>> bpeTokVec;
+//   for (auto x : bpeTok) {
+//     bpeTokVec.push_back(x);
+//   }
 
-  // apply BPE codes to each word
-  unordered_map<string, string> bpe[kThreads];
-  vector<thread> threads;
-  for (size_t i = 0; i < kThreads; i++) {
-    threads.emplace_back(
-      [&](size_t this_thread) {
-        for (size_t w = this_thread; w < bpeTokVec.size(); w += kThreads) {
-          auto &x = bpeTokVec[w];
-          bpe[this_thread][x.first] = process_bpe(x.second, codes, reversed_codes, vocab);
-        }
-      },
-      i
-    );
-  }
+//   // apply BPE codes to each word
+//   vector<unordered_map<string, string>> bpe(kThreads);
+//   //unordered_map<string, string> bpe[kThreads];
+//   vector<thread> threads;
+//   for (size_t i = 0; i < kThreads; i++) {
+//     threads.emplace_back(
+//       [&](size_t this_thread) {
+//         for (size_t w = this_thread; w < bpeTokVec.size(); w += kThreads) {
+//           auto &x = bpeTokVec[w];
+//           bpe[this_thread][x.first] = process_bpe(x.second, codes, reversed_codes, vocab);
+//         }
+//       },
+//       i
+//     );
+//   }
 
-  unordered_map<string, string> final_bpe;
-  for (size_t i = 0; i < kThreads; i++) {
-    threads[i].join();
-    for (auto x : bpe[i]) {
-      final_bpe[x.first] = x.second;
-    }
-  }
-  // output
-  outputText(outputFile, inputFile, final_bpe);
-}
+//   unordered_map<string, string> final_bpe;
+//   for (size_t i = 0; i < kThreads; i++) {
+//     threads[i].join();
+//     for (auto x : bpe[i]) {
+//       final_bpe[x.first] = x.second;
+//     }
+//   }
+//   // output
+//   outputText(outputFile, inputFile, final_bpe);
+// }
 
 
 class BPEApplyer {
@@ -677,16 +893,16 @@ public:
 };
 
 
-void applybpe_stream(const char *codesPath, const char *vocabPath) {
-  BPEApplyer applyer(codesPath, vocabPath);
-  std::string line;
-  while(std::getline(std::cin, line)) {
-    vector<string> tmp;
-    tmp.push_back(line);
-    for(auto& l : applyer.apply(tmp)){
-      std::cout << l << std::endl;
-    }
-  }
-}
+// void applybpe_stream(const char *codesPath, const char *vocabPath) {
+//   BPEApplyer applyer(codesPath, vocabPath);
+//   std::string line;
+//   while(std::getline(std::cin, line)) {
+//     vector<string> tmp;
+//     tmp.push_back(line);
+//     for(auto& l : applyer.apply(tmp)){
+//       std::cout << l << std::endl;
+//     }
+//   }
+// }
 
 };
